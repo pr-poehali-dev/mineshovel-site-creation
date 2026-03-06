@@ -118,27 +118,6 @@
     transition: color 0.3s;
   }
 
-  .nav-link::after {
-    content: "";
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: #3b82f6;
-    box-shadow: 0 0 8px #3b82f6;
-    transition: width 0.3s ease;
-  }
-
-  .nav-link:hover::after {
-    width: 100%;
-  }
-
-  .nav-link:hover {
-    color: #60a5fa;
-    text-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
-  }
-
   .btn-blue {
     position: relative;
     overflow: hidden;
