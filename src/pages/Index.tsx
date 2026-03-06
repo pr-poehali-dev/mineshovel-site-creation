@@ -1,5 +1,114 @@
 import { useState, useEffect, useRef } from "react";
 import Icon from "@/components/ui/icon";
+import { useYookassa, openPaymentPage, isValidEmail } from "@/components/extensions/yookassa/useYookassa";
+
+const YOOKASSA_API = "https://functions.poehali.dev/3f8d6504-ce50-4afb-8d89-4fa22dc94b3a";
+const RETURN_URL = window.location.origin + "/?payment=success";
+
+interface PurchaseItem {
+  name: string;
+  price: number;
+  color: string;
+}
+
+const PurchaseModal = ({
+  item,
+  onClose,
+}: {
+  item: PurchaseItem;
+  onClose: () => void;
+}) => {
+  const [nickname, setNickname] = useState("");
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+
+  const { createPayment, isLoading } = useYookassa({
+    apiUrl: YOOKASSA_API,
+    onError: (err) => setError(err.message),
+  });
+
+  const handlePurchase = async () => {
+    if (!nickname.trim()) { setError("Введите ник"); return; }
+    if (!email.trim() || !isValidEmail(email)) { setError("Введите корректный email"); return; }
+    setError("");
+
+    const response = await createPayment({
+      amount: item.price,
+      userEmail: email,
+      userName: nickname,
+      description: `${item.name} — ${nickname}`,
+      returnUrl: RETURN_URL,
+      cartItems: [{ id: item.name, name: item.name, price: item.price, quantity: 1 }],
+    });
+
+    if (response?.payment_url) {
+      openPaymentPage(response.payment_url);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      <div
+        className="relative w-full max-w-md glass-card rounded-2xl p-6 animate-scale-in"
+        style={{ borderColor: `${item.color}30` }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-white cursor-pointer transition-colors">
+          <Icon name="X" size={20} />
+        </button>
+
+        <div className="mb-6">
+          <div className="font-russo text-xl text-white mb-1">{item.name}</div>
+          <div className="font-russo text-2xl" style={{ color: item.color }}>{item.price} ₽</div>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="text-gray-400 text-xs mb-1.5 block">Ваш ник в Minecraft</label>
+            <input
+              type="text"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              placeholder="Steve"
+              className="w-full px-4 py-3 rounded-xl bg-ms-dark border border-ms-border/50 text-white text-sm placeholder:text-gray-600 focus:border-ms-blue/50 focus:outline-none transition-colors"
+            />
+          </div>
+          <div>
+            <label className="text-gray-400 text-xs mb-1.5 block">Email для чека</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="example@mail.ru"
+              className="w-full px-4 py-3 rounded-xl bg-ms-dark border border-ms-border/50 text-white text-sm placeholder:text-gray-600 focus:border-ms-blue/50 focus:outline-none transition-colors"
+            />
+          </div>
+        </div>
+
+        {error && (
+          <div className="mt-3 text-red-400 text-xs flex items-center gap-1.5">
+            <Icon name="AlertCircle" size={14} />
+            {error}
+          </div>
+        )}
+
+        <button
+          onClick={handlePurchase}
+          disabled={isLoading}
+          className="mt-6 w-full py-3.5 rounded-xl font-russo text-sm tracking-wider text-white cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ background: item.color }}
+        >
+          {isLoading ? "Создаём платёж..." : "ОПЛАТИТЬ"}
+        </button>
+
+        <p className="text-center text-gray-600 text-xs mt-3">
+          Оплата через ЮKassa. После оплаты товар выдаётся автоматически.
+        </p>
+      </div>
+    </div>
+  );
+};
 
 const ParticleBg = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -330,6 +439,7 @@ const Index = () => {
   const [expandedPriv, setExpandedPriv] = useState<number | null>(null);
   const [donateTab, setDonateTab] = useState<DonateTab>("privileges");
   const [currencyAmount, setCurrencyAmount] = useState(100);
+  const [purchaseItem, setPurchaseItem] = useState<PurchaseItem | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -568,6 +678,17 @@ const Index = () => {
                         {expandedPriv === i ? "Свернуть" : "Ещё " + (priv.features.length - 3)}
                       </button>
                     )}
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPurchaseItem({ name: `Привилегия «${priv.name}»`, price: parseInt(priv.price.replace(/\s/g, "")), color: priv.color });
+                      }}
+                      className="mt-4 w-full py-2.5 rounded-xl font-russo text-xs tracking-wider text-white cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all duration-300"
+                      style={{ background: `${priv.color}30`, border: `1px solid ${priv.color}40` }}
+                    >
+                      КУПИТЬ
+                    </button>
                   </div>
                 </div>
               ))}
@@ -618,6 +739,12 @@ const Index = () => {
                 <span className="font-russo text-2xl text-white">{currencyPrice} ₽</span>
               </div>
 
+              <button
+                onClick={() => setPurchaseItem({ name: `${currencyAmount} кусочков`, price: currencyPrice, color: "#eab308" })}
+                className="mt-6 w-full py-3.5 rounded-xl font-russo text-sm tracking-wider text-black cursor-pointer bg-yellow-400 hover:bg-yellow-300 active:scale-[0.98] transition-all duration-300"
+              >
+                КУПИТЬ {currencyAmount} КУСОЧКОВ
+              </button>
               <p className="text-center text-gray-600 text-xs mt-4">10 кусочков = 1 ₽</p>
             </div>
           </div>
@@ -646,7 +773,14 @@ const Index = () => {
                 </div>
                 <div className="font-russo text-base text-white mb-1 group-hover:text-ms-blue-bright transition-colors">{c.name}</div>
                 <p className="text-gray-500 text-xs mb-3 leading-relaxed">{c.desc}</p>
-                <div className="font-russo text-lg" style={{ color: c.color }}>{c.price}</div>
+                <div className="font-russo text-lg mb-3" style={{ color: c.color }}>{c.price}</div>
+                <button
+                  onClick={() => setPurchaseItem({ name: c.name, price: parseInt(c.price.replace(/\s/g, "")), color: c.color })}
+                  className="w-full py-2.5 rounded-xl font-russo text-xs tracking-wider text-white cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all duration-300"
+                  style={{ background: `${c.color}30`, border: `1px solid ${c.color}40` }}
+                >
+                  КУПИТЬ
+                </button>
               </div>
             ))}
           </div>
@@ -675,7 +809,14 @@ const Index = () => {
                 </div>
                 <div className="font-russo text-base text-white mb-1 group-hover:text-ms-blue-bright transition-colors">{item.name}</div>
                 <p className="text-gray-500 text-xs mb-3 leading-relaxed">{item.desc}</p>
-                <div className="font-russo text-lg" style={{ color: item.color }}>{item.price}</div>
+                <div className="font-russo text-lg mb-3" style={{ color: item.color }}>{item.price}</div>
+                <button
+                  onClick={() => setPurchaseItem({ name: item.name, price: parseInt(item.price.replace(/\s/g, "")), color: item.color })}
+                  className="w-full py-2.5 rounded-xl font-russo text-xs tracking-wider text-white cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all duration-300"
+                  style={{ background: `${item.color}30`, border: `1px solid ${item.color}40` }}
+                >
+                  КУПИТЬ
+                </button>
               </div>
             ))}
           </div>
@@ -729,6 +870,10 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {purchaseItem && (
+        <PurchaseModal item={purchaseItem} onClose={() => setPurchaseItem(null)} />
+      )}
 
       {/* ════════ FOOTER ════════ */}
       <footer className="relative border-t border-ms-border/30 bg-ms-bg/90 backdrop-blur-sm">
