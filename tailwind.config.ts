@@ -20,6 +20,7 @@ export default {
 		extend: {
 			fontFamily: {
 				russo: ['Russo One', 'sans-serif'],
+				unbounded: ['Unbounded', 'sans-serif'],
 				rubik: ['Inter', 'sans-serif'],
 				inter: ['Inter', 'sans-serif'],
 			},

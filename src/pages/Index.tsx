@@ -132,17 +132,12 @@ const Index = () => {
       {/* ════════ NAV ════════ */}
       <nav className="fixed top-0 left-0 right-0 z-50 pt-4 px-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-5 py-3 rounded-full border border-ms-border/50 bg-ms-bg/80 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
-          <div className="flex items-center gap-4">
-            <button onClick={() => scrollTo("hero")} className="flex items-center gap-2 cursor-pointer group">
-              <div className="w-7 h-7 rounded-lg bg-ms-blue/15 border border-ms-blue/30 flex items-center justify-center group-hover:bg-ms-blue/25 transition-all duration-300">
-                <Icon name="Shovel" size={14} className="text-ms-blue-bright" />
-              </div>
-              <span className="font-russo text-sm text-white hidden sm:inline">MINESHOVEL</span>
-            </button>
-            <div className="hidden lg:block">
-              <CopyIP ip={MC_SERVER_IP} />
+          <button onClick={() => scrollTo("hero")} className="flex items-center gap-2 cursor-pointer group">
+            <div className="w-7 h-7 rounded-lg bg-ms-blue/15 border border-ms-blue/30 flex items-center justify-center group-hover:bg-ms-blue/25 transition-all duration-300">
+              <Icon name="Shovel" size={14} className="text-ms-blue-bright" />
             </div>
-          </div>
+            <span className="font-russo text-sm text-white hidden sm:inline">MINESHOVEL</span>
+          </button>
 
           <div className="hidden md:flex items-center gap-1">
             {navItems.map(item => (
@@ -160,7 +155,9 @@ const Index = () => {
             ))}
           </div>
 
-          <div className="hidden md:block w-[140px]" />
+          <div className="hidden lg:block">
+            <CopyIP ip={MC_SERVER_IP} />
+          </div>
 
           <button onClick={() => setMobileMenu(!mobileMenu)} className="md:hidden text-gray-400 cursor-pointer">
             <Icon name={mobileMenu ? "X" : "Menu"} size={20} />
@@ -190,24 +187,24 @@ const Index = () => {
         <img
           src={HERO_IMG_LEFT}
           alt=""
-          className="absolute pointer-events-none select-none w-[600px] md:w-[750px] lg:w-[900px] opacity-25"
+          className="absolute pointer-events-none select-none w-[600px] md:w-[750px] lg:w-[900px] opacity-70"
           style={{
             left: "-8%",
             top: "50%",
             transform: `translate(${mouse.x * 25}px, calc(-50% + ${mouse.y * 25}px))`,
-            filter: "drop-shadow(0 0 60px rgba(59,130,246,0.3))",
+            filter: "drop-shadow(0 0 80px rgba(59,130,246,0.4))",
             transition: "transform 0.15s ease-out",
           }}
         />
         <img
           src={HERO_IMG_RIGHT}
           alt=""
-          className="absolute pointer-events-none select-none w-[500px] md:w-[650px] lg:w-[800px] opacity-20"
+          className="absolute pointer-events-none select-none w-[500px] md:w-[650px] lg:w-[800px] opacity-60"
           style={{
             right: "-10%",
             top: "10%",
             transform: `translate(${mouse.x * 20}px, ${mouse.y * 20}px)`,
-            filter: "drop-shadow(0 0 60px rgba(59,130,246,0.25))",
+            filter: "drop-shadow(0 0 80px rgba(59,130,246,0.35))",
             transition: "transform 0.15s ease-out",
           }}
         />
@@ -218,10 +215,9 @@ const Index = () => {
             <span style={{ background: "linear-gradient(135deg, #9CFFF3, #00ACFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
               в твоих руках!
             </span>
-            {" "}Докажи, что ты достоин.
           </h1>
 
-          <p className="mt-6 text-gray-500 text-base md:text-lg max-w-2xl mx-auto opacity-0-init animate-fade-in animate-delay-200 leading-relaxed">
+          <p className="mt-6 text-gray-400 text-base md:text-lg max-w-2xl mx-auto opacity-0-init animate-fade-in animate-delay-200 leading-relaxed">
             Сервер, который покажет вам жестокость, любовь и красоту. Только тут вы сможете раскрыть свой потенциал и способности творить безумие!
           </p>
 
