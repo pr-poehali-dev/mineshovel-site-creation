@@ -32,6 +32,12 @@ const DonateSection = ({
     });
   };
 
+  const getMinPrice = (priv: Privilege) => {
+    const durations = priv.name === "Spring" ? getSpringDurations() : priv.durations;
+    if (!durations.length) return null;
+    return Math.min(...durations.map(d => d.price));
+  };
+
   return (
     <section id="donate" className="relative py-24 px-6 max-w-7xl mx-auto">
       <div className="text-center mb-12">
@@ -56,39 +62,73 @@ const DonateSection = ({
         ))}
       </div>
 
-      {/* Привилегии */}
       {donateTab === "privileges" && (
         <div>
           <p className="text-center text-gray-500 text-sm mb-8">Нажми на привилегию, чтобы узнать подробнее и купить</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-            {privileges.map((priv, i) => (
-              <div
-                key={priv.name}
-                className="priv-card glass-card rounded-xl overflow-hidden opacity-0-init animate-fade-in cursor-pointer group"
-                style={{ animationDelay: `${i * 0.06}s`, borderColor: `${priv.colorLeft}20` }}
-                onClick={() => openPrivilegePurchase(priv)}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = `${priv.colorLeft}40`; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = `${priv.colorLeft}20`; }}
-              >
-                <div className="h-1 w-full transition-all duration-500 group-hover:h-1.5" style={{ background: `linear-gradient(90deg, ${priv.colorLeft}, ${priv.colorRight})` }} />
-                <div className="px-3 py-3 text-center">
-                  <span
-                    className="font-russo text-sm group-hover:scale-105 transition-transform duration-300 inline-block"
-                    style={{ background: `linear-gradient(135deg, ${priv.colorLeft}, ${priv.colorRight})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
-                  >
-                    {priv.name}
-                  </span>
-                  <div className="mt-1">
-                    <Icon name="ChevronRight" size={12} className="text-gray-600 group-hover:text-white transition-colors inline" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {privileges.map((priv, i) => {
+              const minPrice = getMinPrice(priv);
+              return (
+                <div
+                  key={priv.name}
+                  className="priv-card glass-card rounded-2xl overflow-hidden opacity-0-init animate-fade-in cursor-pointer group"
+                  style={{ animationDelay: `${i * 0.06}s`, borderColor: `${priv.colorLeft}15` }}
+                  onClick={() => openPrivilegePurchase(priv)}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = `${priv.colorLeft}40`; (e.currentTarget as HTMLDivElement).style.boxShadow = `0 8px 40px ${priv.colorLeft}15`; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = `${priv.colorLeft}15`; (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; }}
+                >
+                  <div className="h-1.5 w-full transition-all duration-500 group-hover:h-2" style={{ background: `linear-gradient(90deg, ${priv.colorLeft}, ${priv.colorRight})` }} />
+                  <div className="p-5">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div
+                        className="w-11 h-11 rounded-xl flex items-center justify-center group-hover:scale-110 transition-all duration-500"
+                        style={{ background: `${priv.colorLeft}12`, border: `1px solid ${priv.colorLeft}25` }}
+                      >
+                        <Icon name={priv.icon} size={22} style={{ color: priv.colorLeft }} />
+                      </div>
+                      <div>
+                        <span
+                          className="font-russo text-lg group-hover:scale-105 transition-transform duration-300 inline-block"
+                          style={{ background: `linear-gradient(135deg, ${priv.colorLeft}, ${priv.colorRight})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
+                        >
+                          {priv.name}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-gray-500 text-sm leading-relaxed mb-4 line-clamp-2">{priv.desc}</p>
+
+                    <ul className="space-y-1.5 mb-4">
+                      {priv.features.slice(0, 3).map((f, fi) => (
+                        <li key={fi} className="flex items-start gap-2 text-gray-400 text-xs">
+                          <Icon name="Check" size={12} style={{ color: priv.colorLeft }} className="mt-0.5 shrink-0" />
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                      {priv.features.length > 3 && (
+                        <li className="text-gray-600 text-xs pl-5">+{priv.features.length - 3} ещё</li>
+                      )}
+                    </ul>
+
+                    <div className="flex items-center justify-between pt-3 border-t border-ms-border/30">
+                      {minPrice !== null ? (
+                        <span className="text-white font-russo text-base">от {minPrice} ₽</span>
+                      ) : (
+                        <span className="text-gray-500 text-sm">Сезонная</span>
+                      )}
+                      <div className="flex items-center gap-1 text-gray-500 group-hover:text-white transition-colors text-xs">
+                        <span>Подробнее</span>
+                        <Icon name="ChevronRight" size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* Кусочки */}
       {donateTab === "currency" && (
         <div className="max-w-lg mx-auto">
           <div className="glass-card rounded-2xl p-8 hover:border-ms-blue/30 transition-all duration-500">
@@ -135,47 +175,47 @@ const DonateSection = ({
         </div>
       )}
 
-      {/* Кейсы */}
       {donateTab === "cases" && (
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {cases.map((c, i) => (
             <div
               key={c.name}
-              className="glass-card rounded-2xl p-5 cursor-pointer group opacity-0-init animate-fade-in hover:-translate-y-2 transition-all duration-500"
+              className="glass-card rounded-2xl p-6 cursor-pointer group opacity-0-init animate-fade-in hover:-translate-y-2 transition-all duration-500"
               style={{ animationDelay: `${i * 0.1}s`, borderColor: `${c.color}20` }}
               onClick={() => openItemPurchase(c)}
               onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = `${c.color}40`; (e.currentTarget as HTMLDivElement).style.boxShadow = `0 8px 30px ${c.color}15`; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = `${c.color}20`; (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; }}
             >
-              <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500"
+              <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500"
                 style={{ background: `${c.color}12`, border: `1px solid ${c.color}25` }}>
-                <Icon name={c.icon} size={26} style={{ color: c.color }} />
+                <Icon name={c.icon} size={30} style={{ color: c.color }} />
               </div>
-              <div className="font-russo text-base text-white mb-1 group-hover:text-ms-blue-bright transition-colors">{c.name}</div>
-              <div className="font-russo text-lg mt-2" style={{ color: c.color }}>{c.price} ₽</div>
+              <div className="font-russo text-lg text-white mb-2 group-hover:text-ms-blue-bright transition-colors">{c.name}</div>
+              <p className="text-gray-500 text-sm mb-4 leading-relaxed">{c.desc}</p>
+              <div className="font-russo text-xl" style={{ color: c.color }}>{c.price} ₽</div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Другое */}
       {donateTab === "other" && (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {otherItems.map((item, i) => (
             <div
               key={item.name}
-              className="glass-card rounded-2xl p-5 cursor-pointer group opacity-0-init animate-fade-in hover:-translate-y-2 transition-all duration-500"
+              className="glass-card rounded-2xl p-6 cursor-pointer group opacity-0-init animate-fade-in hover:-translate-y-2 transition-all duration-500"
               style={{ animationDelay: `${i * 0.1}s`, borderColor: `${item.color}20` }}
               onClick={() => openItemPurchase(item)}
               onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = `${item.color}40`; (e.currentTarget as HTMLDivElement).style.boxShadow = `0 8px 30px ${item.color}15`; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = `${item.color}20`; (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; }}
             >
-              <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-all duration-500"
+              <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500"
                 style={{ background: `${item.color}12`, border: `1px solid ${item.color}25` }}>
-                <Icon name={item.icon} size={26} style={{ color: item.color }} />
+                <Icon name={item.icon} size={30} style={{ color: item.color }} />
               </div>
-              <div className="font-russo text-base text-white mb-1 group-hover:text-ms-blue-bright transition-colors">{item.name}</div>
-              <div className="font-russo text-lg mt-2" style={{ color: item.color }}>{item.price} ₽</div>
+              <div className="font-russo text-lg text-white mb-2 group-hover:text-ms-blue-bright transition-colors">{item.name}</div>
+              <p className="text-gray-500 text-sm mb-4 leading-relaxed">{item.desc}</p>
+              <div className="font-russo text-xl" style={{ color: item.color }}>{item.price} ₽</div>
             </div>
           ))}
         </div>

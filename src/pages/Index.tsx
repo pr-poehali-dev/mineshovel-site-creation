@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Icon from "@/components/ui/icon";
 import PurchaseModal from "@/components/mineshovel/PurchaseModal";
 import DonateSection from "@/components/mineshovel/DonateSection";
 import { MC_SERVER_IP, navItems, type PurchaseState } from "@/components/mineshovel/data";
 
-const HERO_IMG = "https://cdn.poehali.dev/projects/734d0079-141f-458f-a592-69a0f49a5cd1/bucket/32b3b7e6-ff77-4ea7-8f9c-86b725dce618.png";
+const HERO_IMG_LEFT = "https://cdn.poehali.dev/projects/734d0079-141f-458f-a592-69a0f49a5cd1/bucket/32b3b7e6-ff77-4ea7-8f9c-86b725dce618.png";
+const HERO_IMG_RIGHT = "https://cdn.poehali.dev/projects/734d0079-141f-458f-a592-69a0f49a5cd1/bucket/5b9d0f1f-e082-4cd9-8d0a-ff0f001d5d8d.png";
 
 const ParticleBg = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -43,19 +44,20 @@ const ParticleBg = () => {
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />;
 };
 
-const CopyIP = ({ ip }: { ip: string }) => {
+const CopyIP = ({ ip, size = "sm" }: { ip: string; size?: "sm" | "lg" }) => {
   const [copied, setCopied] = useState(false);
   const handleCopy = () => {
     navigator.clipboard.writeText(ip);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+  const isLg = size === "lg";
   return (
-    <button onClick={handleCopy} className="group flex items-center gap-2 px-5 py-2.5 rounded-xl border border-ms-blue/30 bg-ms-dark/80 hover:border-ms-blue/60 hover:bg-ms-blue/5 hover:scale-[1.03] transition-all duration-300 cursor-pointer">
-      <span className="font-russo text-sm text-ms-blue-bright tracking-wider">
+    <button onClick={handleCopy} className={`group flex items-center gap-2 rounded-xl border border-ms-blue/30 bg-ms-dark/80 hover:border-ms-blue/60 hover:bg-ms-blue/5 hover:scale-[1.03] transition-all duration-300 cursor-pointer ${isLg ? "px-8 py-4" : "px-5 py-2.5"}`}>
+      <span className={`font-russo text-ms-blue-bright tracking-wider ${isLg ? "text-2xl" : "text-sm"}`}>
         {copied ? "Скопировано!" : ip}
       </span>
-      <Icon name={copied ? "Check" : "Copy"} size={14} className={copied ? "text-green-400" : "text-gray-500 group-hover:text-ms-blue-bright transition-colors"} />
+      <Icon name={copied ? "Check" : "Copy"} size={isLg ? 22 : 14} className={copied ? "text-green-400" : "text-gray-500 group-hover:text-ms-blue-bright transition-colors"} />
     </button>
   );
 };
@@ -80,11 +82,29 @@ const useServerStatus = () => {
   return { online, maxPlayers, isOnline };
 };
 
+const useMouseParallax = () => {
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    setOffset({
+      x: (e.clientX - cx) / cx,
+      y: (e.clientY - cy) / cy,
+    });
+  }, []);
+  useEffect(() => {
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [handleMouseMove]);
+  return offset;
+};
+
 const Index = () => {
   const [activeNav, setActiveNav] = useState("hero");
   const [mobileMenu, setMobileMenu] = useState(false);
   const [purchaseState, setPurchaseState] = useState<PurchaseState | null>(null);
   const { online, maxPlayers, isOnline } = useServerStatus();
+  const mouse = useMouseParallax();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -109,15 +129,20 @@ const Index = () => {
       <ParticleBg />
       <div className="fixed inset-0 pointer-events-none z-0" style={{ background: "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(59,130,246,0.06) 0%, transparent 60%)" }} />
 
-      {/* ════════ NAV — rounded pill style ════════ */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4">
-        <div className="flex items-center gap-6 px-6 py-3 rounded-full border border-ms-border/50 bg-ms-bg/80 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
-          <button onClick={() => scrollTo("hero")} className="flex items-center gap-2 cursor-pointer group">
-            <div className="w-7 h-7 rounded-lg bg-ms-blue/15 border border-ms-blue/30 flex items-center justify-center group-hover:bg-ms-blue/25 transition-all duration-300">
-              <Icon name="Shovel" size={14} className="text-ms-blue-bright" />
+      {/* ════════ NAV ════════ */}
+      <nav className="fixed top-0 left-0 right-0 z-50 pt-4 px-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-5 py-3 rounded-full border border-ms-border/50 bg-ms-bg/80 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
+          <div className="flex items-center gap-4">
+            <button onClick={() => scrollTo("hero")} className="flex items-center gap-2 cursor-pointer group">
+              <div className="w-7 h-7 rounded-lg bg-ms-blue/15 border border-ms-blue/30 flex items-center justify-center group-hover:bg-ms-blue/25 transition-all duration-300">
+                <Icon name="Shovel" size={14} className="text-ms-blue-bright" />
+              </div>
+              <span className="font-russo text-sm text-white hidden sm:inline">MINESHOVEL</span>
+            </button>
+            <div className="hidden lg:block">
+              <CopyIP ip={MC_SERVER_IP} />
             </div>
-            <span className="font-russo text-sm text-white hidden sm:inline">MINESHOVEL</span>
-          </button>
+          </div>
 
           <div className="hidden md:flex items-center gap-1">
             {navItems.map(item => (
@@ -135,9 +160,7 @@ const Index = () => {
             ))}
           </div>
 
-          <div className="hidden md:block">
-            <CopyIP ip={MC_SERVER_IP} />
-          </div>
+          <div className="hidden md:block w-[140px]" />
 
           <button onClick={() => setMobileMenu(!mobileMenu)} className="md:hidden text-gray-400 cursor-pointer">
             <Icon name={mobileMenu ? "X" : "Menu"} size={20} />
@@ -162,24 +185,43 @@ const Index = () => {
         )}
       </nav>
 
-      {/* ════════ HERO — centered text, 3D behind ════════ */}
+      {/* ════════ HERO ════════ */}
       <section id="hero" className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
         <img
-          src={HERO_IMG}
+          src={HERO_IMG_LEFT}
           alt=""
-          className="absolute left-[-5%] top-1/2 -translate-y-1/2 w-[550px] md:w-[700px] lg:w-[800px] opacity-30 pointer-events-none animate-float select-none"
-          style={{ filter: "drop-shadow(0 0 60px rgba(59,130,246,0.3))", animationDuration: "8s" }}
+          className="absolute pointer-events-none select-none w-[600px] md:w-[750px] lg:w-[900px] opacity-25"
+          style={{
+            left: "-8%",
+            top: "50%",
+            transform: `translate(${mouse.x * 25}px, calc(-50% + ${mouse.y * 25}px))`,
+            filter: "drop-shadow(0 0 60px rgba(59,130,246,0.3))",
+            transition: "transform 0.15s ease-out",
+          }}
+        />
+        <img
+          src={HERO_IMG_RIGHT}
+          alt=""
+          className="absolute pointer-events-none select-none w-[500px] md:w-[650px] lg:w-[800px] opacity-20"
+          style={{
+            right: "-10%",
+            top: "10%",
+            transform: `translate(${mouse.x * 20}px, ${mouse.y * 20}px)`,
+            filter: "drop-shadow(0 0 60px rgba(59,130,246,0.25))",
+            transition: "transform 0.15s ease-out",
+          }}
         />
 
-        <div className="relative z-10 text-center max-w-3xl mx-auto px-6">
-          <h1 className="font-russo text-4xl sm:text-5xl md:text-7xl text-white leading-tight opacity-0-init animate-fade-in">
+        <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
+          <h1 className="font-russo text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-tight opacity-0-init animate-fade-in">
             Вся судьба анархии лишь{" "}
             <span style={{ background: "linear-gradient(135deg, #9CFFF3, #00ACFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
               в твоих руках!
             </span>
+            {" "}Докажи, что ты достоин.
           </h1>
 
-          <p className="mt-6 text-gray-500 text-base md:text-lg max-w-xl mx-auto opacity-0-init animate-fade-in animate-delay-200 leading-relaxed">
+          <p className="mt-6 text-gray-500 text-base md:text-lg max-w-2xl mx-auto opacity-0-init animate-fade-in animate-delay-200 leading-relaxed">
             Сервер, который покажет вам жестокость, любовь и красоту. Только тут вы сможете раскрыть свой потенциал и способности творить безумие!
           </p>
 
@@ -240,8 +282,8 @@ const Index = () => {
               )}
             </div>
 
-            <div className="text-center">
-              <CopyIP ip={MC_SERVER_IP} />
+            <div className="flex justify-center">
+              <CopyIP ip={MC_SERVER_IP} size="lg" />
             </div>
           </div>
         </div>
@@ -276,7 +318,6 @@ const Index = () => {
               ].map(link => (
                 <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-ms-dark border border-ms-border/50 hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
-                  style={{ ["--link-color" as string]: link.color }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = `${link.color}40`; (e.currentTarget as HTMLAnchorElement).style.boxShadow = `0 4px 20px ${link.color}15`; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = ""; (e.currentTarget as HTMLAnchorElement).style.boxShadow = ""; }}
                 >

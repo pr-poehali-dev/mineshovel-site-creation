@@ -20,7 +20,8 @@ export default {
 		extend: {
 			fontFamily: {
 				russo: ['Russo One', 'sans-serif'],
-				rubik: ['Rubik', 'sans-serif'],
+				rubik: ['Inter', 'sans-serif'],
+				inter: ['Inter', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

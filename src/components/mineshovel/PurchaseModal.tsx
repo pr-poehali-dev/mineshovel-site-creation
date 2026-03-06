@@ -28,6 +28,11 @@ const PurchaseModal = ({
     return Math.max(1, p);
   }, [state.price, state.promoDiscount]);
 
+  const handleSelectDuration = (label: string, price: number) => {
+    setState({ ...state, duration: label, price });
+    setError("");
+  };
+
   const handleNext = () => {
     if (state.step === 1 && state.type === "privilege" && !state.duration) {
       setError("Выберите срок");
@@ -93,7 +98,6 @@ const PurchaseModal = ({
         </button>
 
         <div className="flex flex-col md:flex-row">
-          {/* Left — steps */}
           <div className="flex-1 p-6">
             <div className="flex items-center gap-3 mb-1">
               <div className="flex gap-1">
@@ -111,13 +115,12 @@ const PurchaseModal = ({
               {state.step === 3 && "Ожидание оплаты"}
             </div>
 
-            {/* Step 1 — privilege durations */}
             {state.step === 1 && state.type === "privilege" && state.durations && (
               <div className="space-y-2.5">
                 {state.durations.map(d => (
                   <button
                     key={d.key}
-                    onClick={() => { setState({ ...state, duration: d.label }); setError(""); }}
+                    onClick={() => handleSelectDuration(d.label, d.price)}
                     className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border transition-all duration-300 cursor-pointer ${
                       state.duration === d.label ? "border-opacity-60 bg-opacity-10" : "border-ms-border/50 bg-ms-dark hover:border-opacity-30"
                     }`}
@@ -134,6 +137,7 @@ const PurchaseModal = ({
                       </div>
                       <span className="font-russo text-sm text-white">{d.label}</span>
                     </div>
+                    <span className="font-russo text-sm" style={{ color: state.color }}>{d.price} ₽</span>
                   </button>
                 ))}
                 <button
@@ -147,7 +151,6 @@ const PurchaseModal = ({
               </div>
             )}
 
-            {/* Step 1 — item */}
             {state.step === 1 && state.type === "item" && (
               <div>
                 <p className="text-gray-400 text-sm mb-4 leading-relaxed">{state.desc}</p>
@@ -162,7 +165,6 @@ const PurchaseModal = ({
               </div>
             )}
 
-            {/* Step 2 — form */}
             {state.step === 2 && (
               <div className="space-y-4">
                 <input
@@ -193,106 +195,83 @@ const PurchaseModal = ({
                       value={state.promoCode}
                       onChange={(e) => setState({ ...state, promoCode: e.target.value })}
                       placeholder="Промокод"
-                      className="flex-1 px-4 py-2.5 rounded-xl bg-ms-dark border border-ms-border/50 text-white text-sm placeholder:text-gray-600 focus:outline-none transition-colors"
+                      className="flex-1 px-4 py-3 rounded-xl bg-ms-dark border border-ms-border/50 text-white text-sm placeholder:text-gray-600 focus:outline-none"
                     />
-                    <button onClick={handleApplyPromo} className="px-4 py-2.5 rounded-xl font-russo text-xs text-white cursor-pointer hover:brightness-110 transition-all" style={{ background: `${state.color}40` }}>
+                    <button onClick={handleApplyPromo} className="px-4 py-3 rounded-xl text-sm font-medium cursor-pointer hover:brightness-110 transition-all text-white" style={{ background: BTN_COLOR }}>
                       OK
                     </button>
                   </div>
                 )}
 
                 {state.promoDiscount > 0 && (
-                  <div className="flex items-center gap-2 text-green-400 text-xs">
-                    <Icon name="BadgeCheck" size={14} />
-                    Скидка {state.promoDiscount}% применена!
+                  <div className="text-green-400 text-xs flex items-center gap-1">
+                    <Icon name="Check" size={12} /> Скидка {state.promoDiscount}% применена
                   </div>
                 )}
 
-                <div className="mt-2">
-                  <div className="text-gray-500 text-xs mb-2 tracking-wider">СПОСОБ ОПЛАТЫ</div>
-                  <div className="flex gap-2">
-                    <div className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-ms-blue/10 border border-ms-blue/30 cursor-default">
-                      <Icon name="CreditCard" size={16} className="text-ms-blue-bright" />
-                      <span className="text-sm text-white">Картой</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-2">
-                  <span className="text-gray-400 text-sm">Итого:</span>
+                <div className="flex items-center justify-between p-4 rounded-xl bg-ms-blue/5 border border-ms-blue/20 mt-2">
+                  <span className="text-gray-400 text-sm">К оплате:</span>
                   <div className="flex items-center gap-2">
-                    {state.promoDiscount > 0 && <span className="text-gray-600 line-through text-sm">{state.price} ₽</span>}
+                    {state.promoDiscount > 0 && (
+                      <span className="text-gray-600 line-through text-sm">{state.price} ₽</span>
+                    )}
                     <span className="font-russo text-xl text-white">{finalPrice} ₽</span>
                   </div>
                 </div>
 
-                <button
-                  onClick={handlePurchase}
-                  disabled={isLoading}
-                  className="w-full py-3.5 rounded-xl font-russo text-sm tracking-wider text-white cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ background: BTN_COLOR }}
-                >
-                  {isLoading ? "Создаём платёж..." : "ОПЛАТИТЬ"}
-                </button>
+                <div className="flex gap-3 mt-2">
+                  <button onClick={handleBack} className="px-5 py-3 rounded-xl border border-ms-border/50 text-gray-400 text-sm cursor-pointer hover:text-white hover:border-ms-blue/30 transition-all">
+                    <Icon name="ArrowLeft" size={16} />
+                  </button>
+                  <button
+                    onClick={handlePurchase}
+                    disabled={isLoading}
+                    className="flex-1 py-3.5 rounded-xl font-russo text-sm tracking-wider text-white cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all duration-300 disabled:opacity-60"
+                    style={{ background: BTN_COLOR }}
+                  >
+                    {isLoading ? "ЗАГРУЗКА..." : "ОПЛАТИТЬ"}
+                  </button>
+                </div>
+              </div>
+            )}
 
-                <p className="text-center text-gray-600 text-[10px] leading-relaxed">
-                  Продолжая вы автоматически соглашаетесь с условиями оферты.
+            {state.step === 3 && (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center animate-pulse" style={{ background: `${state.color}15`, border: `2px solid ${state.color}30` }}>
+                  <Icon name="Loader2" size={28} style={{ color: state.color }} className="animate-spin" />
+                </div>
+                <div className="font-russo text-lg text-white mb-2">Перенаправляем на оплату...</div>
+                <p className="text-gray-500 text-sm">
+                  {state.orderNumber && <>Заказ #{state.orderNumber}. </>}Откроется страница оплаты. После оплаты товар будет выдан автоматически.
                 </p>
               </div>
             )}
 
-            {/* Step 3 — waiting */}
-            {state.step === 3 && (
-              <div className="text-center py-4">
-                <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center animate-pulse" style={{ background: `${state.color}15` }}>
-                  <Icon name="Clock" size={28} style={{ color: state.color }} />
-                </div>
-                <div className="font-russo text-lg text-white mb-2">Ожидание оплаты</div>
-                <div className="space-y-2 text-sm text-gray-400">
-                  {state.orderNumber && <div>Заказ: <span className="text-white">#{state.orderNumber}</span></div>}
-                  <div>Товар: <span className="text-white">{state.name}{state.duration ? ` (${state.duration})` : ""}</span></div>
-                  <div>Оплата: <span className="text-white">Картой</span></div>
-                  <div>Сумма: <span className="font-russo text-white">{finalPrice} ₽</span></div>
-                </div>
-                <p className="text-gray-600 text-xs mt-4">Вы будете перенаправлены на страницу оплаты...</p>
-              </div>
-            )}
-
             {error && (
-              <div className="mt-3 text-red-400 text-xs flex items-center gap-1.5">
-                <Icon name="AlertCircle" size={14} />
-                {error}
+              <div className="mt-3 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center gap-2">
+                <Icon name="AlertCircle" size={14} /> {error}
               </div>
-            )}
-
-            {state.step === 2 && (
-              <button onClick={handleBack} className="mt-4 flex items-center gap-1 text-gray-500 text-sm cursor-pointer hover:text-gray-300 transition-colors">
-                <Icon name="ChevronLeft" size={16} />
-                Назад
-              </button>
             )}
           </div>
 
-          {/* Right — info */}
-          <div className="md:w-64 p-6 md:border-l border-t md:border-t-0 border-ms-border/30">
-            <div className="font-russo text-lg mb-1" style={{ background: grad, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <div className="w-full md:w-72 p-6 border-t md:border-t-0 md:border-l border-ms-border/30 flex flex-col justify-center items-center bg-ms-dark/50">
+            <div className="w-16 h-16 rounded-2xl mb-4 flex items-center justify-center" style={{ background: grad, boxShadow: `0 8px 30px ${state.color}30` }}>
+              <Icon name="Crown" size={28} className="text-white" />
+            </div>
+            <div className="font-russo text-xl text-center mb-1" style={{ background: grad, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
               {state.name}
             </div>
-            {state.duration && <div className="text-gray-400 text-xs mb-3">{state.duration}</div>}
+            {state.duration && <div className="text-gray-500 text-sm mb-3">{state.duration}</div>}
 
             {state.features && state.features.length > 0 && (
-              <div className="mt-3 space-y-1.5 max-h-64 overflow-y-auto pr-1 scrollbar-thin">
+              <div className="w-full mt-2 space-y-1.5 max-h-48 overflow-y-auto scrollbar-thin pr-1">
                 {state.features.map((f, i) => (
-                  <div key={i} className="flex items-start gap-2">
-                    <Icon name="Check" size={12} className="mt-0.5 flex-shrink-0" style={{ color: state.color }} />
-                    <span className="text-gray-400 text-xs leading-relaxed">{f}</span>
+                  <div key={i} className="flex items-start gap-2 text-gray-400 text-xs">
+                    <Icon name="Check" size={12} style={{ color: state.color }} className="mt-0.5 shrink-0" />
+                    <span>{f}</span>
                   </div>
                 ))}
               </div>
-            )}
-
-            {state.type === "item" && (
-              <p className="text-gray-500 text-xs mt-2 leading-relaxed">{state.desc}</p>
             )}
           </div>
         </div>

@@ -41,7 +41,7 @@
   }
 
   body {
-    @apply bg-ms-bg text-white font-rubik overflow-x-hidden;
+    @apply bg-ms-bg text-white font-inter overflow-x-hidden;
     background: #06090f;
   }
 
