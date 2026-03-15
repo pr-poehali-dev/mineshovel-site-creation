@@ -163,7 +163,6 @@ def handler(event, context):
             'body': json.dumps({'error': 'Invalid JSON'})
         }
 
-    # Validate required fields
     amount = data.get('amount', 0)
     user_name = data.get('user_name', '').strip()
     user_email = data.get('user_email', '').strip()
@@ -171,6 +170,11 @@ def handler(event, context):
     return_url = data.get('return_url', '').strip()
     description = data.get('description', 'Оплата заказа')
     cart_items = data.get('cart_items', [])
+    product_key = data.get('product_key', '')
+    duration_key = data.get('duration_key', '')
+    promo_code = data.get('promo_code', '')
+    promo_discount = data.get('promo_discount', 0)
+    original_amount = data.get('original_amount', amount)
 
     if amount < MIN_AMOUNT or amount > MAX_AMOUNT:
         return {
@@ -223,13 +227,16 @@ def handler(event, context):
         # Generate order number
         order_number = f"YK-{datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
 
-        # Create order in DB
         cur.execute(f"""
             INSERT INTO {S}orders
-            (order_number, user_name, user_email, user_phone, amount, status, created_at, updated_at)
-            VALUES (%s, %s, %s, %s, %s, 'pending', %s, %s)
+            (order_number, user_name, user_email, user_phone, amount, status, created_at, updated_at,
+             product_key, duration_key, promo_code, promo_discount, original_amount, product_type)
+            VALUES (%s, %s, %s, %s, %s, 'pending', %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id
-        """, (order_number, user_name, user_email, user_phone, amount, now, now))
+        """, (order_number, user_name, user_email, user_phone, amount, now, now,
+              product_key, duration_key, promo_code if promo_code else None,
+              promo_discount, original_amount,
+              'privilege' if duration_key else 'item'))
 
         order_id = cur.fetchone()[0]
 

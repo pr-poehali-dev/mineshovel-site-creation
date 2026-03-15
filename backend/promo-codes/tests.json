@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Check promo code",
+      "method": "POST",
+      "path": "/?action=check",
+      "body": {"code": "makesh", "product_name": "Midnight"},
+      "expectedStatus": 200,
+      "expectedBody": {"valid": true},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Check invalid promo",
+      "method": "POST",
+      "path": "/?action=check",
+      "body": {"code": "invalidcode", "product_name": "Test"},
+      "expectedStatus": 404,
+      "expectedBody": {"valid": false},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "CORS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}

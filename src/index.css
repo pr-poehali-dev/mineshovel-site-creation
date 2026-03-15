@@ -102,6 +102,13 @@
     box-shadow: 0 0 30px rgba(59, 130, 246, 0.1);
   }
 
+  .glass-ios {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
   .bg-grid {
     background-image:
       linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
@@ -110,6 +117,10 @@
   }
 
   .font-russo {
+    font-family: "Unbounded", sans-serif;
+  }
+
+  .font-unbounded {
     font-family: "Unbounded", sans-serif;
   }
 

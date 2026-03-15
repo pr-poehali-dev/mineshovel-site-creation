@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Link } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 import PurchaseModal from "@/components/mineshovel/PurchaseModal";
 import DonateSection from "@/components/mineshovel/DonateSection";
@@ -6,6 +7,7 @@ import { MC_SERVER_IP, navItems, type PurchaseState } from "@/components/minesho
 
 const HERO_IMG_LEFT = "https://cdn.poehali.dev/projects/734d0079-141f-458f-a592-69a0f49a5cd1/bucket/32b3b7e6-ff77-4ea7-8f9c-86b725dce618.png";
 const HERO_IMG_RIGHT = "https://cdn.poehali.dev/projects/734d0079-141f-458f-a592-69a0f49a5cd1/bucket/5b9d0f1f-e082-4cd9-8d0a-ff0f001d5d8d.png";
+const HERO_3D_BLUE = "https://cdn.poehali.dev/projects/734d0079-141f-458f-a592-69a0f49a5cd1/bucket/78b6d473-272e-49c4-b643-cdf05a9895bb.png";
 
 const ParticleBg = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -54,7 +56,7 @@ const CopyIP = ({ ip, size = "sm" }: { ip: string; size?: "sm" | "lg" }) => {
   const isLg = size === "lg";
   return (
     <button onClick={handleCopy} className={`group flex items-center gap-2 rounded-xl border border-ms-blue/30 bg-ms-dark/80 hover:border-ms-blue/60 hover:bg-ms-blue/5 hover:scale-[1.03] transition-all duration-300 cursor-pointer ${isLg ? "px-8 py-4" : "px-5 py-2.5"}`}>
-      <span className={`font-russo text-ms-blue-bright tracking-wider ${isLg ? "text-2xl" : "text-sm"}`}>
+      <span className={`font-unbounded text-ms-blue-bright tracking-wider font-semibold ${isLg ? "text-2xl" : "text-sm"}`}>
         {copied ? "Скопировано!" : ip}
       </span>
       <Icon name={copied ? "Check" : "Copy"} size={isLg ? 22 : 14} className={copied ? "text-green-400" : "text-gray-500 group-hover:text-ms-blue-bright transition-colors"} />
@@ -99,9 +101,17 @@ const useMouseParallax = () => {
   return offset;
 };
 
+const GLASS_STYLE: React.CSSProperties = {
+  background: "rgba(255, 255, 255, 0.03)",
+  backdropFilter: "blur(40px) saturate(180%)",
+  WebkitBackdropFilter: "blur(40px) saturate(180%)",
+  border: "1px solid rgba(255, 255, 255, 0.08)",
+};
+
 const Index = () => {
   const [activeNav, setActiveNav] = useState("hero");
   const [mobileMenu, setMobileMenu] = useState(false);
+  const [subMenu, setSubMenu] = useState(false);
   const [purchaseState, setPurchaseState] = useState<PurchaseState | null>(null);
   const { online, maxPlayers, isOnline } = useServerStatus();
   const mouse = useMouseParallax();
@@ -129,14 +139,17 @@ const Index = () => {
       <ParticleBg />
       <div className="fixed inset-0 pointer-events-none z-0" style={{ background: "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(59,130,246,0.06) 0%, transparent 60%)" }} />
 
-      {/* ════════ NAV ════════ */}
+      {/* NAV */}
       <nav className="fixed top-0 left-0 right-0 z-50 pt-4 px-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-5 py-3 rounded-full border border-ms-border/50 bg-ms-bg/80 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
+        <div
+          className="max-w-6xl mx-auto flex items-center justify-between px-5 py-3 rounded-full shadow-[0_4px_30px_rgba(0,0,0,0.4)]"
+          style={GLASS_STYLE}
+        >
           <button onClick={() => scrollTo("hero")} className="flex items-center gap-2 cursor-pointer group">
             <div className="w-7 h-7 rounded-lg bg-ms-blue/15 border border-ms-blue/30 flex items-center justify-center group-hover:bg-ms-blue/25 transition-all duration-300">
               <Icon name="Shovel" size={14} className="text-ms-blue-bright" />
             </div>
-            <span className="font-russo text-sm text-white hidden sm:inline">MINESHOVEL</span>
+            <span className="font-unbounded text-sm text-white hidden sm:inline font-semibold">MINESHOVEL</span>
           </button>
 
           <div className="hidden md:flex items-center gap-1">
@@ -153,6 +166,35 @@ const Index = () => {
                 {item.label}
               </button>
             ))}
+            <div className="relative">
+              <button
+                onClick={() => setSubMenu(!subMenu)}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full text-gray-400 hover:text-white hover:bg-white/5 text-sm font-medium cursor-pointer transition-all duration-300"
+              >
+                <Icon name="ChevronDown" size={14} className={`transition-transform duration-200 ${subMenu ? "rotate-180" : ""}`} />
+              </button>
+              {subMenu && (
+                <div
+                  className="absolute top-full mt-2 right-0 w-44 rounded-xl p-2 space-y-1 shadow-xl"
+                  style={GLASS_STYLE}
+                >
+                  <Link
+                    to="/public_offer"
+                    className="block px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+                    onClick={() => setSubMenu(false)}
+                  >
+                    Оферта
+                  </Link>
+                  <Link
+                    to="/rules"
+                    className="block px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+                    onClick={() => setSubMenu(false)}
+                  >
+                    Правила
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="hidden lg:block">
@@ -165,7 +207,7 @@ const Index = () => {
         </div>
 
         {mobileMenu && (
-          <div className="absolute top-full mt-2 left-4 right-4 rounded-2xl border border-ms-border/50 bg-ms-bg/95 backdrop-blur-xl p-4 space-y-1">
+          <div className="absolute top-full mt-2 left-4 right-4 rounded-2xl p-4 space-y-1 shadow-xl" style={GLASS_STYLE}>
             {navItems.map(item => (
               <button
                 key={item.id}
@@ -177,19 +219,27 @@ const Index = () => {
                 {item.label}
               </button>
             ))}
+            <div className="border-t border-white/5 pt-2 mt-2">
+              <Link to="/public_offer" className="block w-full text-left px-4 py-3 rounded-lg text-sm text-gray-400 hover:text-white transition-all" onClick={() => setMobileMenu(false)}>
+                Оферта
+              </Link>
+              <Link to="/rules" className="block w-full text-left px-4 py-3 rounded-lg text-sm text-gray-400 hover:text-white transition-all" onClick={() => setMobileMenu(false)}>
+                Правила
+              </Link>
+            </div>
             <div className="pt-3"><CopyIP ip={MC_SERVER_IP} /></div>
           </div>
         )}
       </nav>
 
-      {/* ════════ HERO ════════ */}
+      {/* HERO */}
       <section id="hero" className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
         <img
           src={HERO_IMG_LEFT}
-          alt=""
-          className="absolute pointer-events-none select-none w-[600px] md:w-[750px] lg:w-[900px] opacity-70"
+          alt="MineShovel 3D"
+          className="absolute pointer-events-none select-none w-[500px] md:w-[650px] lg:w-[750px] opacity-70"
           style={{
-            left: "-8%",
+            left: "-5%",
             top: "50%",
             transform: `translate(${mouse.x * 25}px, calc(-50% + ${mouse.y * 25}px))`,
             filter: "drop-shadow(0 0 80px rgba(59,130,246,0.4))",
@@ -198,33 +248,48 @@ const Index = () => {
         />
         <img
           src={HERO_IMG_RIGHT}
-          alt=""
-          className="absolute pointer-events-none select-none w-[500px] md:w-[650px] lg:w-[800px] opacity-60"
+          alt="MineShovel 3D"
+          className="absolute pointer-events-none select-none w-[400px] md:w-[550px] lg:w-[650px] opacity-60"
           style={{
-            right: "-10%",
-            top: "10%",
+            right: "-6%",
+            top: "8%",
             transform: `translate(${mouse.x * 20}px, ${mouse.y * 20}px)`,
             filter: "drop-shadow(0 0 80px rgba(59,130,246,0.35))",
             transition: "transform 0.15s ease-out",
           }}
         />
+        <img
+          src={HERO_3D_BLUE}
+          alt="MineShovel 3D sphere"
+          className="absolute pointer-events-none select-none w-[200px] md:w-[280px] lg:w-[340px] opacity-50"
+          style={{
+            right: "5%",
+            bottom: "10%",
+            transform: `translate(${mouse.x * 15}px, ${mouse.y * 15}px) rotate(${mouse.x * 5}deg)`,
+            filter: "drop-shadow(0 0 60px rgba(0,172,255,0.35))",
+            transition: "transform 0.15s ease-out",
+          }}
+        />
 
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-          <h1 className="font-russo text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-tight opacity-0-init animate-fade-in">
-            Вся судьба анархии лишь{" "}
-            <span style={{ background: "linear-gradient(135deg, #9CFFF3, #00ACFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-              в твоих руках!
+          <h1 className="font-unbounded text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-tight opacity-0-init animate-fade-in font-bold">
+            <span className="block">Вся судьба анархии</span>
+            <span className="block">
+              лишь{" "}
+              <span style={{ background: "linear-gradient(135deg, #9CFFF3, #00ACFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                в твоих руках!
+              </span>
             </span>
           </h1>
 
-          <p className="mt-6 text-gray-400 text-base md:text-lg max-w-2xl mx-auto opacity-0-init animate-fade-in animate-delay-200 leading-relaxed">
+          <p className="mt-6 text-gray-400 text-base md:text-lg max-w-2xl mx-auto opacity-0-init animate-fade-in animate-delay-200 leading-relaxed font-unbounded text-sm">
             Сервер, который покажет вам жестокость, любовь и красоту. Только тут вы сможете раскрыть свой потенциал и способности творить безумие!
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 opacity-0-init animate-fade-in animate-delay-300">
             <button
               onClick={() => scrollTo("donate")}
-              className="btn-blue px-8 py-3.5 rounded-xl bg-ms-blue font-russo text-sm tracking-wider text-white glow-blue cursor-pointer hover:bg-blue-500 hover:scale-[1.04] active:scale-[0.98] transition-all duration-300"
+              className="btn-blue px-8 py-3.5 rounded-xl bg-ms-blue font-unbounded text-sm tracking-wider text-white glow-blue cursor-pointer hover:bg-blue-500 hover:scale-[1.04] active:scale-[0.98] transition-all duration-300 font-bold"
             >
               МАГАЗИН
             </button>
@@ -237,24 +302,27 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ════════ DONATE ════════ */}
+      {/* DONATE */}
       <DonateSection onPurchase={setPurchaseState} />
 
-      {/* ════════ STATUS ════════ */}
+      {/* STATUS */}
       <section id="status" className="relative py-24 px-6 max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <div className="text-ms-cyan text-xs tracking-[0.3em] font-medium mb-4">В РЕАЛЬНОМ ВРЕМЕНИ</div>
-          <h2 className="font-russo text-4xl md:text-5xl text-white">СТАТУС СЕРВЕРА</h2>
+          <h2 className="font-unbounded text-4xl md:text-5xl text-white font-bold">СТАТУС СЕРВЕРА</h2>
         </div>
 
         <div className="max-w-xl mx-auto">
-          <div className="glass-card rounded-2xl p-8 status-glow transition-all duration-700">
+          <div
+            className="rounded-2xl p-8 status-glow transition-all duration-700"
+            style={GLASS_STYLE}
+          >
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-ms-blue/15 border border-ms-blue/30 flex items-center justify-center">
                 <Icon name="Swords" size={20} className="text-ms-blue-bright" />
               </div>
               <div>
-                <div className="font-russo text-xl text-white">Омега Анархия</div>
+                <div className="font-unbounded text-xl text-white font-semibold">Омега Анархия</div>
                 <div className="text-xs text-gray-500">Java 1.20.1 — 1.21.x</div>
               </div>
               <div className="ml-auto flex items-center gap-2">
@@ -266,9 +334,9 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="bg-ms-dark rounded-xl p-4 border border-ms-border/50 hover:border-ms-blue/30 transition-all duration-300 cursor-default mb-6">
+            <div className="bg-ms-dark/60 rounded-xl p-4 border border-white/5 hover:border-ms-blue/20 transition-all duration-300 cursor-default mb-6">
               <div className="text-gray-500 text-xs mb-1 tracking-wider">ОНЛАЙН</div>
-              <div className="font-russo text-3xl text-white">
+              <div className="font-unbounded text-3xl text-white font-bold">
                 {online !== null ? online : "—"}<span className="text-gray-600 text-lg">/{maxPlayers}</span>
               </div>
               {online !== null && (
@@ -278,6 +346,17 @@ const Index = () => {
               )}
             </div>
 
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="bg-ms-dark/60 rounded-xl p-3 border border-white/5">
+                <div className="text-gray-500 text-xs mb-1">Режим</div>
+                <div className="text-white text-sm font-medium">Анархия</div>
+              </div>
+              <div className="bg-ms-dark/60 rounded-xl p-3 border border-white/5">
+                <div className="text-gray-500 text-xs mb-1">Версия</div>
+                <div className="text-white text-sm font-medium">1.20.1 — 1.21.x</div>
+              </div>
+            </div>
+
             <div className="flex justify-center">
               <CopyIP ip={MC_SERVER_IP} size="lg" />
             </div>
@@ -285,12 +364,12 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ════════ PURCHASE MODAL ════════ */}
+      {/* PURCHASE MODAL */}
       {purchaseState && (
         <PurchaseModal state={purchaseState} setState={setPurchaseState} onClose={() => setPurchaseState(null)} />
       )}
 
-      {/* ════════ FOOTER ════════ */}
+      {/* FOOTER */}
       <footer className="relative border-t border-ms-border/30 bg-ms-bg/90 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
@@ -299,7 +378,7 @@ const Index = () => {
                 <div className="w-8 h-8 rounded-lg bg-ms-blue/15 border border-ms-blue/30 flex items-center justify-center">
                   <Icon name="Shovel" size={16} className="text-ms-blue-bright" />
                 </div>
-                <span className="font-russo text-lg text-white">MINESHOVEL</span>
+                <span className="font-unbounded text-lg text-white font-bold">MINESHOVEL</span>
               </div>
               <p className="text-gray-600 text-sm max-w-xs">Шаг в Будущее. Современная анархия на Java 1.20.1 — 1.21.x</p>
             </div>
@@ -324,8 +403,12 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-ms-border/20 text-center">
-            <p className="text-gray-600 text-xs">&copy; {new Date().getFullYear()} MineShovel. Все права защищены. Не является публичной офертой.</p>
+          <div className="mt-8 pt-6 border-t border-ms-border/20 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-gray-600 text-xs">&copy; {new Date().getFullYear()} MineShovel. Все права защищены.</p>
+            <div className="flex gap-4">
+              <Link to="/public_offer" className="text-gray-600 text-xs hover:text-gray-400 transition-colors">Публичная оферта</Link>
+              <Link to="/rules" className="text-gray-600 text-xs hover:text-gray-400 transition-colors">Правила</Link>
+            </div>
           </div>
         </div>
       </footer>

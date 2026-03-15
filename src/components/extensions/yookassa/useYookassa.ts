@@ -24,6 +24,11 @@ export interface PaymentPayload {
   description?: string;
   returnUrl: string;
   cartItems?: CartItem[];
+  productKey?: string;
+  durationKey?: string;
+  promoCode?: string;
+  promoDiscount?: number;
+  originalAmount?: number;
 }
 
 export interface PaymentResponse {
@@ -121,6 +126,11 @@ export function useYookassa(options: UseYookassaOptions): UseYookassaReturn {
           description: payload.description || "Оплата заказа",
           return_url: payload.returnUrl,
           cart_items: payload.cartItems || [],
+          product_key: payload.productKey || "",
+          duration_key: payload.durationKey || "",
+          promo_code: payload.promoCode || "",
+          promo_discount: payload.promoDiscount || 0,
+          original_amount: payload.originalAmount || payload.amount,
         };
 
         const response = await fetch(apiUrl, {
