@@ -1,4 +1,5 @@
-export const YOOKASSA_API = "https://functions.poehali.dev/3f8d6504-ce50-4afb-8d89-4fa22dc94b3a";
+export const YOOKASSA_API =
+  "https://functions.poehali.dev/3f8d6504-ce50-4afb-8d89-4fa22dc94b3a";
 export const RETURN_URL = window.location.origin + "/?payment=success";
 export const MC_SERVER_IP = "mc.mineshovel.ru";
 export const BTN_COLOR = "#23BEFC";
@@ -76,7 +77,7 @@ const SEASONS: Record<string, SeasonConfig> = {
     icon: "Flower2",
     colorLeft: "#E2FF34",
     colorRight: "#FFF332",
-    desc: "Сезонная весенняя привилегия с уникальными весенними бонусами.",
+    desc: "Сезонная весенняя привилегия с уникальными бонусами.",
     kitName: "spring",
     features: [
       "Весенний префикс [Spring]",
@@ -164,13 +165,22 @@ export function getSeasonEndDate(): Date {
 export function getSeasonDaysLeft(): number {
   const end = getSeasonEndDate();
   const now = new Date();
-  return Math.max(1, Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+  return Math.max(
+    1,
+    Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
+  );
 }
 
 export function getSeasonalDurations(): Duration[] {
   const daysLeft = getSeasonDaysLeft();
   if (daysLeft < 30) {
-    return [{ label: `${daysLeft} дн. (до конца сезона)`, key: "season_short", price: 599 }];
+    return [
+      {
+        label: `${daysLeft} дн. (до конца сезона)`,
+        key: "season_short",
+        price: 599,
+      },
+    ];
   }
   return [
     { label: "1 месяц", key: "1m", price: 599 },
@@ -192,8 +202,8 @@ export function getSeasonalPrivilege(): Privilege {
     detailedDesc: `◆ Команды:\n/kit ${config.kitName} — кит привилегии\n/emitingtable — улучшить снаряжение\n/${config.kitName} — интересные фишки привилегии\nВсе команды предыдущих привилегий\n\n◆ Дополнительные возможности:\nслоты на аукционе: 8\nприватов: 4\nточки дома: 7`,
     rconCommands: {
       "1m": `lp user {user} parent addtemp season 30d`,
-      "season": `lp user {user} parent addtemp season ${daysLeft}d`,
-      "season_short": `lp user {user} parent addtemp season ${daysLeft}d`,
+      season: `lp user {user} parent addtemp season ${daysLeft}d`,
+      season_short: `lp user {user} parent addtemp season ${daysLeft}d`,
     },
   };
 }
@@ -221,7 +231,11 @@ export function getActiveHolidayDiscount(): HolidayDiscount | null {
       discount: 30,
       isActive: true,
       daysUntil: 0,
-      endDate: new Date(month === 11 ? now.getFullYear() + 1 : now.getFullYear(), 0, 2),
+      endDate: new Date(
+        month === 11 ? now.getFullYear() + 1 : now.getFullYear(),
+        0,
+        2,
+      ),
     };
   }
 
@@ -272,7 +286,9 @@ export function getNextHoliday(): { name: string; daysUntil: number } | null {
   ];
 
   for (const h of holidays) {
-    const diff = Math.ceil((h.date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    const diff = Math.ceil(
+      (h.date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+    );
     if (diff > 0) {
       return { name: h.name, daysUntil: diff };
     }
@@ -291,7 +307,12 @@ export const privileges: Privilege[] = [
     colorRight: "#E0FF1C",
     desc: "Начальная привилегия с базовыми бонусами для старта.",
     icon: "Moon",
-    features: ["Префикс [Midnight] в чате", "Доступ к /kit midnight", "3 точки дома /sethome", "Цветной ник /nick"],
+    features: [
+      "Префикс [Midnight] в чате",
+      "Доступ к /kit midnight",
+      "3 точки дома /sethome",
+      "Цветной ник /nick",
+    ],
     durations: [
       { label: "1 месяц", key: "1m", price: 18 },
       { label: "3 месяца", key: "3m", price: 28 },
@@ -301,7 +322,7 @@ export const privileges: Privilege[] = [
     rconCommands: {
       "1m": "lp user {user} parent addtemp midnight 30d",
       "3m": "lp user {user} parent addtemp midnight 90d",
-      "forever": "lp user {user} parent add midnight",
+      forever: "lp user {user} parent add midnight",
     },
   },
   {
@@ -326,7 +347,7 @@ export const privileges: Privilege[] = [
     rconCommands: {
       "1m": "lp user {user} parent addtemp exotic 30d",
       "3m": "lp user {user} parent addtemp exotic 90d",
-      "forever": "lp user {user} parent add exotic",
+      forever: "lp user {user} parent add exotic",
     },
   },
   {
@@ -350,7 +371,7 @@ export const privileges: Privilege[] = [
     rconCommands: {
       "1m": "lp user {user} parent addtemp atomic 30d",
       "3m": "lp user {user} parent addtemp atomic 90d",
-      "forever": "lp user {user} parent add atomic",
+      forever: "lp user {user} parent add atomic",
     },
   },
   {
@@ -374,7 +395,7 @@ export const privileges: Privilege[] = [
     rconCommands: {
       "1m": "lp user {user} parent addtemp warden 30d",
       "3m": "lp user {user} parent addtemp warden 90d",
-      "forever": "lp user {user} parent add warden",
+      forever: "lp user {user} parent add warden",
     },
   },
   {
@@ -400,7 +421,7 @@ export const privileges: Privilege[] = [
     rconCommands: {
       "1m": "lp user {user} parent addtemp noris 30d",
       "3m": "lp user {user} parent addtemp noris 90d",
-      "forever": "lp user {user} parent add noris",
+      forever: "lp user {user} parent add noris",
     },
   },
   {
@@ -425,7 +446,7 @@ export const privileges: Privilege[] = [
     rconCommands: {
       "1m": "lp user {user} parent addtemp chrona 30d",
       "3m": "lp user {user} parent addtemp chrona 90d",
-      "forever": "lp user {user} parent add chrona",
+      forever: "lp user {user} parent add chrona",
     },
   },
   {
@@ -451,7 +472,7 @@ export const privileges: Privilege[] = [
     rconCommands: {
       "1m": "lp user {user} parent addtemp briz 30d",
       "3m": "lp user {user} parent addtemp briz 90d",
-      "forever": "lp user {user} parent add briz",
+      forever: "lp user {user} parent add briz",
     },
   },
   {
@@ -476,7 +497,7 @@ export const privileges: Privilege[] = [
     rconCommands: {
       "1m": "lp user {user} parent addtemp shovel 30d",
       "3m": "lp user {user} parent addtemp shovel 90d",
-      "forever": "lp user {user} parent add shovel",
+      forever: "lp user {user} parent add shovel",
     },
   },
   {
@@ -485,7 +506,12 @@ export const privileges: Privilege[] = [
     colorRight: "#FFA352",
     desc: "Создай свою уникальную привилегию! Кастомный префикс и настройки.",
     icon: "Paintbrush",
-    features: ["Свой уникальный префикс", "Выбор цвета ника", "Кастомный /kit", "Персональная настройка"],
+    features: [
+      "Свой уникальный префикс",
+      "Выбор цвета ника",
+      "Кастомный /kit",
+      "Персональная настройка",
+    ],
     durations: [
       { label: "1 месяц", key: "1m", price: 899 },
       { label: "2 месяца", key: "2m", price: 1099 },
@@ -593,7 +619,11 @@ export const navItems = [
 // PRICE HELPERS (holiday + promo discount)
 // =============================================================================
 
-export function applyHolidayDiscount(price: number, itemName: string, excludeHoliday?: boolean): { price: number; discount: number } {
+export function applyHolidayDiscount(
+  price: number,
+  itemName: string,
+  excludeHoliday?: boolean,
+): { price: number; discount: number } {
   if (excludeHoliday) return { price, discount: 0 };
   const holiday = getActiveHolidayDiscount();
   if (!holiday) return { price, discount: 0 };
@@ -601,7 +631,8 @@ export function applyHolidayDiscount(price: number, itemName: string, excludeHol
   const excluded = ["Всё или Харрибо", "Разбан", "Размут"];
   if (excluded.includes(itemName)) return { price, discount: 0 };
 
-  if (itemName.includes("кусочков") || itemName === "Кусочки") return { price, discount: 0 };
+  if (itemName.includes("кусочков") || itemName === "Кусочки")
+    return { price, discount: 0 };
 
   const discounted = Math.round(price * (1 - holiday.discount / 100));
   return { price: Math.max(1, discounted), discount: holiday.discount };
