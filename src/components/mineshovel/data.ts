@@ -111,10 +111,9 @@ const SEASONS: Record<string, SeasonConfig> = {
     kitName: "autumn",
     features: [
       "Осенний префикс [Autumn]",
-      "Сезонный /kit autumn",
-      "Уникальные осенние частицы",
-      "Осенний ивент-бонус x2",
-      "Эксклюзивный скин",
+      "/kit autumn",
+      "/emitingtable — улучшить снаряжение",
+      "/spring — интересные фишки привилегии",
     ],
     rconName: "season",
   },
