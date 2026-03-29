@@ -77,7 +77,7 @@ const SEASONS: Record<string, SeasonConfig> = {
     icon: "Flower2",
     colorLeft: "#E2FF34",
     colorRight: "#FFF332",
-    desc: "Сезонная весенняя привилегия с уникальными бонусами.",
+    desc: "Сезонная весенняя привилегия с уникальными весенними бонусами.",
     kitName: "spring",
     features: [
       "Весенний префикс [Spring]",
