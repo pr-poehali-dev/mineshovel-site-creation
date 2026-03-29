@@ -500,7 +500,7 @@ export const privileges: Privilege[] = [
     name: "Кастомка",
     colorLeft: "#FFEF5B",
     colorRight: "#FFA352",
-    desc: "Создай свою уникальную привилегию! Кастомный префикс и настройки.",
+    desc: "Создай свою уникальную привилегию!",
     icon: "Paintbrush",
     features: [
       "Свой уникальный префикс",
