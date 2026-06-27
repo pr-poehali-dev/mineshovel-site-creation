@@ -273,7 +273,7 @@ const Index = () => {
 
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
           <h1 className="font-unbounded text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-tight opacity-0-init animate-fade-in font-bold">
-            <span className="block mx-0 my-0 text-6xl px-[5px]">Вся судьба анархии лишь</span>
+            <span className="block mx-0 my-0 px-[5px] text-5xl">Вся судьба анархии лишь</span>
             <span className="block">
               лишь{" "}
               <span style={{ background: "linear-gradient(135deg, #9CFFF3, #00ACFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
